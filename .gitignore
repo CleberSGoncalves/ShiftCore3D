@@ -1,0 +1,12 @@
+# ShiftCore3D — Web Deploy Directory
+
+# Pasta de distribuição Vite (gerada por `npm run build`)
+dist/
+
+# Node modules
+node_modules/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
