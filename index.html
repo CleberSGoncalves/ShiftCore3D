@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#00050f" />
+  <title>Shift Core: Cubic Gravity — Orbital Challenge | FluidCleb Interactive</title>
+  <meta name="description" content="Navigate gravitational labyrinths as a Cubo-Naut robot. Flip gravity in 3 axes to collect energy cores!" />
+
+  <!-- CrazyGames SDK v3 — OBRIGATÓRIO -->
+  <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #00050f;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── CANVAS GODOT ── */
+    #game-canvas-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+    }
+
+    canvas#canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    /* ── LOADING SCREEN ── */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #00050f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease;
+    }
+    #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+
+    .loading-title {
+      font-size: clamp(22px, 4vw, 38px);
+      font-weight: 700;
+      color: #00f5ff;
+      text-shadow: 0 0 20px #00f5ff, 0 0 40px #00f5ff88;
+      margin-bottom: 24px;
+      letter-spacing: 0.08em;
+    }
+    .loading-bar-wrap {
+      width: clamp(200px, 40vw, 400px);
+      height: 6px;
+      background: rgba(0,245,255,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .loading-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00f5ff, #38bdf8);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 12px #00f5ff;
+    }
+    .loading-status {
+      margin-top: 16px;
+      font-size: 14px;
+      color: rgba(0,245,255,0.6);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── INTRO FLUIDCLEB CANVAS (0.0s–2.8s) ── */
+    #intro-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: #000008;
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+    #intro-canvas.hidden { opacity: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ══ INTRO FLUIDCLEB INTERACTIVE (0.0s–2.8s) ══ -->
+  <canvas id="intro-canvas"></canvas>
+
+  <!-- ══ LOADING SCREEN ══ -->
+  <div id="loading-screen">
+    <div class="loading-title">SHIFT CORE</div>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar-fill" id="loading-bar"></div>
+    </div>
+    <div class="loading-status" id="loading-status">Initializing systems...</div>
+  </div>
+
+  <!-- ══ GODOT GAME CANVAS ══ -->
+  <div id="game-canvas-container">
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+  </div>
+
+  <script type="module">
+    // ════════════════════════════════════════════════════════════════
+    // INTRO FLUIDCLEB INTERACTIVE — Procedural Canvas (0.0s–2.8s)
+    // Orbes cósmicos (#00f5ff, #38bdf8), fusão central, texto neon
+    // ════════════════════════════════════════════════════════════════
+    const INTRO_DURATION = 2800;
+    const introCanvas = document.getElementById('intro-canvas');
+    const ctx = introCanvas.getContext('2d');
+
+    function resizeIntro() {
+      introCanvas.width = window.innerWidth;
+      introCanvas.height = window.innerHeight;
+    }
+    resizeIntro();
+    window.addEventListener('resize', resizeIntro);
+
+    let introStart = null;
+    let introActive = true;
+
+    const orbs = [
+      { x: 0.35, y: 0.5, r: 80, color: '#00f5ff', phase: 0 },
+      { x: 0.65, y: 0.5, r: 80, color: '#38bdf8', phase: Math.PI },
+    ];
+
+    function easeInOut(t) {
+      return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    }
+
+    function drawIntro(timestamp) {
+      if (!introActive) return;
+      if (!introStart) introStart = timestamp;
+      const elapsed = timestamp - introStart;
+      const t = Math.min(elapsed / INTRO_DURATION, 1.0);
+
+      const W = introCanvas.width, H = introCanvas.height;
+      const cx = W / 2, cy = H / 2;
+
+      // Fundo
+      ctx.fillStyle = '#000008';
+      ctx.fillRect(0, 0, W, H);
+
+      // Fase 1 (0–0.4): orbes surgem das bordas
+      // Fase 2 (0.4–0.7): orbes se movem para o centro e fundem
+      // Fase 3 (0.7–0.9): texto surge com gota metálica
+      // Fase 4 (0.9–1.0): fade out
+
+      const orbProgress = Math.min(t / 0.7, 1.0);
+      const mergeT = easeInOut(Math.max(0, (t - 0.35) / 0.35));
+
+      for (const orb of orbs) {
+        // Posição: interpola da posição inicial até o centro
+        const startX = orb.x * W;
+        const startY = orb.y * H;
+        const px = startX + (cx - startX) * mergeT;
+        const py = startY + (cy - startY) * mergeT;
+        const r = orb.r + Math.sin(timestamp * 0.003 + orb.phase) * 8;
+        const alpha = Math.min(1.0, orbProgress * 2);
+
+        const grad = ctx.createRadialGradient(px, py, 0, px, py, r * 2.5);
+        grad.addColorStop(0, orb.color + 'ff');
+        grad.addColorStop(0.3, orb.color + '88');
+        grad.addColorStop(1, orb.color + '00');
+        ctx.globalAlpha = alpha;
+        ctx.beginPath();
+        ctx.arc(px, py, r * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+
+      // Gota metálica central (fase 0.6+)
+      if (t > 0.6) {
+        const dropT = easeInOut(Math.min((t - 0.6) / 0.2, 1.0));
+        const dropR = 18 * dropT;
+        const dropGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, dropR);
+        dropGrad.addColorStop(0, '#ffffff');
+        dropGrad.addColorStop(0.4, '#94a3b8');
+        dropGrad.addColorStop(1, '#64748b00');
+        ctx.globalAlpha = dropT;
+        ctx.beginPath();
+        ctx.arc(cx, cy, dropR, 0, Math.PI * 2);
+        ctx.fillStyle = dropGrad;
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+
+      // Texto "FLUIDCLEB INTERACTIVE" (fase 0.65+)
+      if (t > 0.65) {
+        const textT = easeInOut(Math.min((t - 0.65) / 0.25, 1.0));
+        const fontSize = Math.round(W * 0.032);
+        ctx.globalAlpha = textT;
+        ctx.font = `700 ${fontSize}px 'Segoe UI', system-ui, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Sombra neon
+        ctx.shadowColor = '#00f5ff';
+        ctx.shadowBlur = 24;
+        ctx.fillStyle = '#00f5ff';
+        ctx.fillText('FLUIDCLEB INTERACTIVE', cx, cy + 55);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+      }
+
+      // Fade out final
+      if (t > 0.88) {
+        const fadeT = (t - 0.88) / 0.12;
+        ctx.globalAlpha = fadeT;
+        ctx.fillStyle = '#000008';
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalAlpha = 1.0;
+      }
+
+      if (t < 1.0) {
+        requestAnimationFrame(drawIntro);
+      } else {
+        introActive = false;
+        introCanvas.classList.add('hidden');
+        setTimeout(() => introCanvas.remove(), 500);
+      }
+    }
+
+    requestAnimationFrame(drawIntro);
+
+    // ════════════════════════════════════════════════════════════════
+    // CRAZYGAMES SDK v3 — Inicialização blindada
+    // ════════════════════════════════════════════════════════════════
+    window._crazySdkReady = false;
+    window._adResult = undefined;
+    window._midgameResult = undefined;
+
+    async function initCrazyGamesSDK() {
+      if (window.CrazyGames && window.CrazyGames.SDK) {
+        try {
+          await window.CrazyGames.SDK.init();
+          window._crazySdkReady = true;
+          console.log('[ShiftCore] CrazyGames SDK v3 initialized ✓');
+        } catch (e) {
+          console.warn('[ShiftCore] CrazyGames SDK init failed (AdBlock?):', e);
+          window._crazySdkReady = false;
+        }
+      } else {
+        console.warn('[ShiftCore] CrazyGames SDK not found');
+        window._crazySdkReady = false;
+      }
+    }
+
+    // Inicia SDK em paralelo com a intro
+    initCrazyGamesSDK();
+
+    // ════════════════════════════════════════════════════════════════
+    // GODOT ENGINE LOADER
+    // ════════════════════════════════════════════════════════════════
+    const loadingBar = document.getElementById('loading-bar');
+    const loadingStatus = document.getElementById('loading-status');
+    const loadingScreen = document.getElementById('loading-screen');
+
+    function updateProgress(pct, msg) {
+      loadingBar.style.width = Math.round(pct) + '%';
+      if (msg) loadingStatus.textContent = msg;
+    }
+
+    async function loadGodotEngine() {
+      updateProgress(5, 'Loading engine...');
+
+      // Aguarda intro terminar (2.8s) antes de ocultar loading screen
+      await new Promise(r => setTimeout(r, INTRO_DURATION));
+
+      updateProgress(20, 'Engine ready...');
+
+      // Inicializa Godot Engine via script gerado pela exportação
+      // O script godot.js é gerado pelo Godot Export e referenciado aqui
+      if (typeof GodotRuntime !== 'undefined') {
+        await startGodot();
+      } else {
+        // Fallback: carrega dinamicamente o script de exportação
+        await loadScript('./game/ShiftCore3D.js');
+        await startGodot();
+      }
+    }
+
+    async function startGodot() {
+      const canvas = document.getElementById('canvas');
+      updateProgress(60, 'Loading assets...');
+
+      try {
+        const engine = new Engine({
+          canvas,
+          executable: './game/ShiftCore3D',
+          unloadAfterInit: false,
+          onProgress(current, total) {
+            if (total > 0) {
+              const pct = 60 + (current / total) * 35;
+              updateProgress(pct, `Loading assets... ${Math.round(current / 1024)}KB`);
+            }
+          },
+        });
+
+        await engine.startGame();
+        updateProgress(100, 'Launching Shift Core...');
+
+        setTimeout(() => {
+          loadingScreen.classList.add('fade-out');
+          setTimeout(() => loadingScreen.remove(), 700);
+        }, 400);
+
+      } catch (err) {
+        console.error('[ShiftCore] Engine load error:', err);
+        loadingStatus.textContent = 'Error loading game. Please refresh.';
+        loadingStatus.style.color = '#ff4444';
+      }
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    // Inicia carregamento após a intro
+    loadGodotEngine();
+  </script>
+</body>
+</html>
