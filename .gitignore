@@ -1,12 +1,6 @@
-# ShiftCore3D — Web Deploy Directory
-
-# Pasta de distribuição Vite (gerada por `npm run build`)
-dist/
-
-# Node modules
+.godot/
 node_modules/
-
-# Sistema
-.DS_Store
-Thumbs.db
-*.log
+dist/assets/*.map
+build/
+.venv/
+*.translation

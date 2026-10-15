@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://player_scene_sc3d_v2"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_player"]
+size = Vector3(1.1, 1.1, 1.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_player"]
+size = Vector3(1.1, 1.1, 1.1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_player"]
+albedo_color = Color(0.05, 0.6, 1.0)
+emission_enabled = true
+emission = Color(0.0, 0.5, 1.0)
+emission_energy_multiplier = 0.6
+roughness = 0.2
+metallic = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_player_detail"]
+albedo_color = Color(0.8, 0.9, 1.0)
+emission_enabled = true
+emission = Color(0.0, 0.95, 1.0)
+emission_energy_multiplier = 1.2
+roughness = 0.1
+metallic = 1.0
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_player")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_player")
+surface_material_override/0 = SubResource("Mat_player")
+
+[node name="CornerDetail" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 0.55, 0)
+mesh = SubResource("BoxMesh_player")
+surface_material_override/0 = SubResource("Mat_player_detail")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_player")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+light_color = Color(0.0, 0.7, 1.0)
+light_energy = 1.5
+omni_range = 3.5
+omni_attenuation = 1.2

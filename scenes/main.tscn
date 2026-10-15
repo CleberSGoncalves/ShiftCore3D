@@ -1,0 +1,109 @@
+[gd_scene load_steps=10 format=3 uid="uid://main_scene_sc3d_v2"]
+
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/hud.tscn" id="2_hud"]
+[ext_resource type="Script" path="res://scripts/level_generator.gd" id="3_lvlgen"]
+
+[sub_resource type="GDScript" id="GDScript_main"]
+script/source = "extends Node3D
+
+@onready var level_gen: Node = $LevelGenerator
+@onready var camera: Camera3D = $CameraArm/Camera3D
+@onready var player: CharacterBody3D = $Player
+@onready var cam_arm: Node3D = $CameraArm
+
+var _cam_offset: Vector3 = Vector3(0, 8, 14)
+var _cam_lerp_speed: float = 4.0
+
+func _ready() -> void:
+	if GameManager:
+		GameManager.level_completed.connect(_on_level_completed)
+	# Gera o nível atual
+	var lvl := 1
+	if GameManager:
+		lvl = GameManager.current_level
+	level_gen.generate_level(self, lvl)
+
+func _process(delta: float) -> void:
+	if not is_instance_valid(player): return
+	# Câmera segue o jogador com lerp suave
+	var target_pos := player.global_position + _cam_offset
+	cam_arm.global_position = cam_arm.global_position.lerp(target_pos, _cam_lerp_speed * delta)
+	# Câmera reorienta com a direção da gravidade
+	if GameManager:
+		var grav := GameManager.gravity_direction
+		var up := -grav if grav != Vector3.DOWN else Vector3.UP
+		_cam_offset = (-grav * 8.0) + (Vector3.BACK * 14.0 if grav.x == 0 else Vector3.RIGHT * 14.0)
+
+func _on_level_completed(_level: int) -> void:
+	pass  # HUD gerencia painel de vitória
+"
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(80, 1, 80)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(80, 1, 80)
+
+[sub_resource type="StandardMaterial3D" id="Mat_floor"]
+albedo_color = Color(0.04, 0.06, 0.12)
+emission_enabled = true
+emission = Color(0.0, 0.3, 0.6)
+emission_energy_multiplier = 0.15
+roughness = 0.9
+metallic = 0.3
+
+[sub_resource type="Environment" id="Env_space"]
+background_mode = 1
+background_color = Color(0.01, 0.01, 0.04)
+ambient_light_source = 2
+ambient_light_color = Color(0.05, 0.1, 0.2)
+ambient_light_energy = 0.4
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.1
+
+[node name="Main" type="Node3D"]
+script = SubResource("GDScript_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Env_space")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.353, 0.353, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 20, 0)
+light_color = Color(0.8, 0.9, 1.0)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+light_color = Color(0.0, 0.8, 1.0)
+light_energy = 2.0
+omni_range = 25.0
+
+[node name="FloorBase" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="FloorBase"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FloorBase"]
+mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("Mat_floor")
+
+[node name="CameraArm" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraArm"]
+transform = Transform3D(1, 0, 0, 0, 0.9, 0.45, 0, -0.45, 0.9, 0, 0, 14)
+fov = 65.0
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="LevelGenerator" type="Node" parent="."]
+script = ExtResource("3_lvlgen")
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]

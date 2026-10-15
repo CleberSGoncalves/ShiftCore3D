@@ -1,0 +1,392 @@
+[gd_scene load_steps=2 format=3 uid="uid://hud_scene_sc3d_v2"]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+layer = 10
+
+[node name="TopBG" type="ColorRect" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 56.0
+grow_horizontal = 2
+color = Color(0.0, 0.05, 0.12, 0.85)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_right = -16.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_constants/separation = 16
+custom_minimum_size = Vector2(0, 56)
+
+[node name="SectorLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.0, 0.9, 1.0)
+text = "SECTOR 1"
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(120, 0)
+
+[node name="ScoreLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1.0, 0.9, 0.3)
+text = "Score: 0"
+size_flags_horizontal = 3
+
+[node name="CoresLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.0, 1.0, 0.85)
+text = "Cores: 0/0"
+size_flags_horizontal = 3
+
+[node name="GravityLabel" type="Label" parent="TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.7, 0.5, 1.0)
+text = "Gravity: Down"
+size_flags_horizontal = 3
+
+[node name="HealthBar" type="ProgressBar" parent="TopBar"]
+custom_minimum_size = Vector2(150, 28)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="GameOverPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="GameOverPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.72)
+
+[node name="VBox" type="VBoxContainer" parent="GameOverPanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = -150.0
+offset_right = 180.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(1.0, 0.25, 0.1)
+text = "MISSION FAILED"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="GameOverPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1.0, 0.9, 0.3)
+text = "Score: 0"
+horizontal_alignment = 1
+
+[node name="ReviveButton" type="Button" parent="GameOverPanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+theme_override_font_sizes/font_size = 20
+text = "⊙ Quantum Revival"
+
+[node name="RestartButton" type="Button" parent="GameOverPanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 18
+text = "Try Again"
+
+[connection signal="pressed" from="GameOverPanel/VBox/ReviveButton" to="." method="_on_revive_button_pressed"]
+[connection signal="pressed" from="GameOverPanel/VBox/RestartButton" to="." method="_on_restart_button_pressed"]
+
+[node name="VictoryPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="VictoryPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.05, 0.12, 0.75)
+
+[node name="VBox" type="VBoxContainer" parent="VictoryPanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -160.0
+offset_right = 200.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="VictoryPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(0.0, 1.0, 0.85)
+text = "SECTOR CLEARED!"
+horizontal_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="VictoryPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1.0, 0.9, 0.3)
+text = "Score: 0"
+horizontal_alignment = 1
+
+[node name="DoubleButton" type="Button" parent="VictoryPanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+theme_override_font_sizes/font_size = 20
+text = "⊙ Double Data"
+
+[node name="NextButton" type="Button" parent="VictoryPanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 18
+text = "Next Sector"
+
+[connection signal="pressed" from="VictoryPanel/VBox/DoubleButton" to="." method="_on_double_button_pressed"]
+[connection signal="pressed" from="VictoryPanel/VBox/NextButton" to="." method="_on_next_button_pressed"]
+
+[node name="PausePanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dimmer" type="ColorRect" parent="PausePanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.65)
+
+[node name="VBox" type="VBoxContainer" parent="PausePanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -80.0
+offset_right = 150.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="PausePanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.7, 0.5, 1.0)
+text = "PAUSED"
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PausePanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 46)
+theme_override_font_sizes/font_size = 20
+text = "Resume"
+
+[connection signal="pressed" from="PausePanel/VBox/ResumeButton" to="." method="_on_resume_button_pressed"]
+
+[node name="LorePanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BG" type="ColorRect" parent="LorePanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0.02, 0.08, 0.95)
+
+[node name="VBox" type="VBoxContainer" parent="LorePanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -140.0
+offset_right = 300.0
+offset_bottom = 140.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="LorePanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.0, 0.95, 1.0)
+text = "CUBO-NAUT MISSION LOG"
+horizontal_alignment = 1
+
+[node name="BodyLabel" type="Label" parent="LorePanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.85, 0.9, 1.0)
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="NextPageButton" type="Button" parent="LorePanel/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+theme_override_font_sizes/font_size = 18
+text = "Continue ▶"
+
+[connection signal="pressed" from="LorePanel/VBox/NextPageButton" to="." method="_on_lore_next_pressed"]
+
+[node name="SkipButton" type="Button" parent="LorePanel"]
+anchors_preset = 4
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -140.0
+offset_top = 18.0
+offset_right = -16.0
+offset_bottom = 54.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 17
+text = "▶ Skip"
+
+[connection signal="pressed" from="LorePanel/SkipButton" to="." method="_on_skip_pressed"]
+
+[node name="AdPanel" type="Panel" parent="."]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BG" type="ColorRect" parent="AdPanel"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0, 0.0, 0.0, 0.9)
+
+[node name="Label" type="Label" parent="AdPanel"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -30.0
+offset_right = 200.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.0, 0.9, 1.0)
+text = "Loading Quantum Data..."
+horizontal_alignment = 1
+
+[node name="TouchControls" type="Control" parent="."]
+visible = false
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -160.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="GravityPad" type="HBoxContainer" parent="TouchControls"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -60.0
+offset_right = 200.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="BtnUp" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "↑"
+theme_override_font_sizes/font_size = 24
+[connection signal="pressed" from="TouchControls/GravityPad/BtnUp" to="." method="_on_touch_up_pressed"]
+
+[node name="BtnDown" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "↓"
+theme_override_font_sizes/font_size = 24
+[connection signal="pressed" from="TouchControls/GravityPad/BtnDown" to="." method="_on_touch_down_pressed"]
+
+[node name="BtnLeft" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "←"
+theme_override_font_sizes/font_size = 24
+[connection signal="pressed" from="TouchControls/GravityPad/BtnLeft" to="." method="_on_touch_left_pressed"]
+
+[node name="BtnRight" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "→"
+theme_override_font_sizes/font_size = 24
+[connection signal="pressed" from="TouchControls/GravityPad/BtnRight" to="." method="_on_touch_right_pressed"]
+
+[node name="BtnFwd" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "⊙"
+theme_override_font_sizes/font_size = 22
+[connection signal="pressed" from="TouchControls/GravityPad/BtnFwd" to="." method="_on_touch_fwd_pressed"]
+
+[node name="BtnBack" type="Button" parent="TouchControls/GravityPad"]
+layout_mode = 2
+custom_minimum_size = Vector2(60, 60)
+text = "⊗"
+theme_override_font_sizes/font_size = 22
+[connection signal="pressed" from="TouchControls/GravityPad/BtnBack" to="." method="_on_touch_back_pressed"]
