@@ -2,6 +2,7 @@
   "name": "shiftcore3d",
   "version": "1.0.0",
   "description": "Shift Core: Cubic Gravity — Orbital Challenge | CrazyGames HTML5",
+  "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",
