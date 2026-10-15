@@ -1,6 +1,6 @@
 .godot/
 node_modules/
-dist/
+dist/assets/*.map
 build/
 .venv/
 *.translation

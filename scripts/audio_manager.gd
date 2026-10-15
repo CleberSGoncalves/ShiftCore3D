@@ -35,9 +35,9 @@ func play_sfx_synthetic(freq_hz: float = 440.0, duration: float = 0.15,
 	await get_tree().process_frame
 	var pb := player.get_stream_playback()
 	if pb:
-		var sample_count := int(gen.mix_rate * duration)
-		var frames_avail := pb.get_frames_available()
-		var frames_to_fill := mini(sample_count, frames_avail)
+		var sample_count: int = int(gen.mix_rate * duration)
+		var frames_avail: int = pb.get_frames_available()
+		var frames_to_fill: int = mini(sample_count, frames_avail)
 		for i in frames_to_fill:
 			var t: float = float(i) / gen.mix_rate
 			var envelope: float = 1.0 - (t / duration)  # fade out linear
