@@ -92,10 +92,12 @@ func _connect_signals() -> void:
 		GameManager.gravity_changed.connect(_on_gravity_changed)
 		GameManager.game_over.connect(_on_game_over)
 		GameManager.level_completed.connect(_on_level_completed)
+		GameManager.game_paused.connect(_on_game_paused)
 	if CrazySDK:
 		CrazySDK.rewarded_granted.connect(_on_rewarded_granted)
 		CrazySDK.ad_started.connect(_on_ad_started)
 		CrazySDK.ad_finished.connect(_on_ad_finished)
+		CrazySDK.ad_error.connect(_on_ad_error)
 
 # ══════════════════════════════════════════════════════════
 # ATUALIZAR DISPLAYS
@@ -201,6 +203,9 @@ func _on_resume_button_pressed() -> void:
 	if GameManager:
 		GameManager.resume_game()
 
+func _on_game_paused(paused: bool) -> void:
+	pause_panel.visible = paused
+
 # ══════════════════════════════════════════════════════════
 # AD PANEL
 # ══════════════════════════════════════════════════════════
@@ -209,6 +214,13 @@ func _on_ad_started() -> void:
 
 func _on_ad_finished() -> void:
 	ad_panel.visible = false
+	revive_button.disabled = false
+	double_button.disabled = false
+
+func _on_ad_error(_err: String) -> void:
+	ad_panel.visible = false
+	revive_button.disabled = false
+	double_button.disabled = false
 
 func _on_rewarded_granted() -> void:
 	# Se estava aguardando double reward, oculta botão

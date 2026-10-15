@@ -83,6 +83,8 @@ omni_range = 25.0
 
 [node name="FloorBase" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
+collision_layer = 2
+collision_mask = 0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="FloorBase"]
 shape = SubResource("BoxShape3D_floor")

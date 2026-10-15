@@ -55,6 +55,8 @@ var _touch_gravity_input: Vector3 = Vector3.ZERO
 
 # ══════════════════════════════════════════════════════════
 func _ready() -> void:
+	add_to_group("player")          # Necessário para Area3D energy_core/hazard detectar o jogador
+	up_direction = Vector3.UP       # Será atualizado junto com a gravidade
 	_base_scale = scale
 	_target_scale = scale
 	if GameManager:
@@ -115,6 +117,8 @@ func _physics_process(delta: float) -> void:
 func _update_gravity_direction() -> void:
 	_gravity_dir = GameManager.gravity_direction
 	_gravity_strength = GameManager.GRAVITY_STRENGTH * gravity_multiplier
+	# Mantém up_direction sincronizado com a gravidade atual
+	up_direction = -_gravity_dir
 
 func _apply_movement(delta: float) -> void:
 	var on_floor := _is_on_floor_custom()
@@ -136,15 +140,16 @@ func _apply_movement(delta: float) -> void:
 
 	var desired_vel := (right_dir * input_raw.x + fwd_dir * -input_raw.y) * move_speed
 
-	# Aceleração e fricção (delta-time)
+	# Movimento no plano perpendicular à gravidade (funciona em todos os 6 eixos)
+	var grav_component := _gravity_dir * velocity.dot(_gravity_dir)
+	var planar_vel := velocity - grav_component
+
 	if desired_vel.length() > 0.1:
-		velocity.x = move_toward(velocity.x, desired_vel.x, acceleration * delta)
-		velocity.z = move_toward(velocity.z, desired_vel.z, acceleration * delta)
+		planar_vel = planar_vel.move_toward(desired_vel, acceleration * delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
-		velocity.z = move_toward(velocity.z, 0.0, friction * delta)
-	if abs(_gravity_dir.x) > 0.5:  # gravidade lateral
-		velocity.y = move_toward(velocity.y, desired_vel.y, friction * delta)
+		planar_vel = planar_vel.move_toward(Vector3.ZERO, friction * delta)
+
+	velocity = planar_vel + grav_component
 
 	# Jump / impulso anti-gravidade
 	var can_jump := on_floor or (_coyote_timer > 0.0)
@@ -213,6 +218,9 @@ func _update_invulnerability(delta: float) -> void:
 # ══════════════════════════════════════════════════════════
 func _on_gravity_changed(new_dir: Vector3) -> void:
 	_gravity_dir = new_dir
+	# CRÍTICO: up_direction determina o que is_on_floor() considera como "chão"
+	# Deve ser o oposto da direção da gravidade
+	up_direction = -new_dir
 	# Cancela velocidade oposta à nova gravidade para transição suave
 	var against_grav_vel := velocity.dot(-new_dir)
 	if against_grav_vel > 0.0:

@@ -87,6 +87,8 @@ func _spawn_arena_walls(parent: Node3D, size: Vector3) -> void:
 	]
 	for w in walls:
 		var wall := StaticBody3D.new()
+		wall.collision_layer = 2   # FIX: mesma camada das plataformas — player colide
+		wall.collision_mask = 0
 		var col := CollisionShape3D.new()
 		var shape := BoxShape3D.new()
 		shape.size = w[1]

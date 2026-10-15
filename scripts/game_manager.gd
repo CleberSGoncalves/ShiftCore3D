@@ -13,6 +13,7 @@ signal game_over
 signal game_started
 signal level_completed(level: int)
 signal revive_used
+signal game_paused(paused: bool)
 
 # ══════════════════════════════════════════════════════════
 # ESTADO DE JOGO
@@ -100,6 +101,7 @@ func pause_game() -> void:
 	if current_state == GameState.GAMEPLAY:
 		current_state = GameState.PAUSED
 		is_physics_frozen = true
+		game_paused.emit(true)
 		if CrazySDK:
 			CrazySDK.gameplay_stop()
 
@@ -107,6 +109,7 @@ func resume_game() -> void:
 	if current_state == GameState.PAUSED:
 		current_state = GameState.GAMEPLAY
 		is_physics_frozen = false
+		game_paused.emit(false)
 		if CrazySDK:
 			CrazySDK.gameplay_start()
 

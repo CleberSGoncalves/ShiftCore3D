@@ -6,20 +6,22 @@
 script = ExtResource("1_hud")
 layer = 10
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopBG" type="ColorRect" parent="."]
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 56.0
 grow_horizontal = 2
+color = Color(0.0, 0.05, 0.12, 0.85)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 16.0
+offset_right = -16.0
+offset_bottom = 56.0
+grow_horizontal = 2
 theme_override_constants/separation = 16
 custom_minimum_size = Vector2(0, 56)
-
-[node name="TopBG" type="ColorRect" parent="TopBar"]
-color = Color(0.0, 0.05, 0.12, 0.85)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-z_index = -1
 
 [node name="SectorLabel" type="Label" parent="TopBar"]
 layout_mode = 2

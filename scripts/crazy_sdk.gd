@@ -125,11 +125,14 @@ func _on_ad_done(granted: bool, err: String) -> void:
 	AudioManager.mute_all(false)
 	GameManager.freeze_physics(false)
 	JavaScriptBridge.eval("window._adResult = undefined;", true)
+	# CRÍTICO: ad_finished SEMPRE emitido — para ocultar AdPanel mesmo com AdBlock
+	# rewarded_granted só é emitido se o anúncio foi realmente assistido
 	if granted:
 		rewarded_granted.emit()
-		ad_finished.emit()
 	else:
 		ad_error.emit(err)
+	# Sempre fecha o painel de anúncio (independente de erro ou sucesso)
+	ad_finished.emit()
 
 # ──────────────────────────────────────────────────────
 ## Midgame / Interstitial Ad — apenas em telas de transição lógica

@@ -36,23 +36,22 @@ func _on_body_entered(body: Node3D) -> void:
 		queue_free()
 
 func _spawn_collect_particles() -> void:
-	# Partículas procedurais simples via GpuParticles3D
-	var particles := GPUParticles3D.new()
+	# Partículas procedurais seguras para WebGL via CPUParticles3D
+	var particles := CPUParticles3D.new()
 	get_parent().add_child(particles)
 	particles.global_position = global_position
-	var mat := ParticleProcessMaterial.new()
-	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
-	mat.emission_sphere_radius = 0.5
-	mat.initial_velocity_min = 2.0
-	mat.initial_velocity_max = 5.0
-	mat.gravity = Vector3.ZERO
-	mat.color = Color(0.0, 0.95, 1.0)
-	mat.scale_min = 0.1
-	mat.scale_max = 0.25
-	particles.process_material = mat
+	particles.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	particles.emission_sphere_radius = 0.5
+	particles.initial_velocity_min = 2.0
+	particles.initial_velocity_max = 5.0
+	particles.gravity = Vector3.ZERO
+	particles.color = Color(0.0, 0.95, 1.0)
+	particles.scale_amount_min = 0.1
+	particles.scale_amount_max = 0.25
 	particles.amount = 24
 	particles.lifetime = 0.6
 	particles.one_shot = true
+	particles.explosiveness = 1.0
 	particles.emitting = true
 	# Limpa após expirar
 	get_tree().create_timer(1.0).timeout.connect(particles.queue_free)

@@ -79,6 +79,13 @@ action_pause={
 3d/default_gravity=9.8
 common/physics_ticks_per_second=60
 
+[layer_names]
+
+3d_physics/layer_1="Player"
+3d_physics/layer_2="Platforms"
+3d_physics/layer_3="Cores"
+3d_physics/layer_4="Hazards"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
